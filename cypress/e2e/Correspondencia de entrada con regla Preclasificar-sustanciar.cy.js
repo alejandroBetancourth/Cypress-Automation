@@ -6,10 +6,8 @@ import { slowCypressDown } from "cypress-slow-down";
 //Agradecimiento
 //ventanilla sede principal
 
-describe('Correspondencia de entrada con regla pre-clasificar-sustanciar', () => {
+describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => {
   let radicado;
-  let radicadoInterno;
-  let radicadoExterno;
   before(() => {
     cy.intercept({ resourceType: /xhr|fetch/ }, { log: false })
   })
@@ -105,6 +103,30 @@ describe('Correspondencia de entrada con regla pre-clasificar-sustanciar', () =>
     cy.iframe().find('button').contains('Guardar').click();
     cy.iframe().find('button.buttonMain').contains('Finalizar').click();
     cy.iframe().find('.ui-dialog-footer').contains('Aceptar').click();
+    cy.get('a .letrasMinagricultura').click();
+    cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
+
+    /////Consultar radicado/////
+    cy.get('input[type="text"]').type('pruebas01');
+    cy.get('input[type="password"]').type('Soadoc123');
+    cy.get('button').click();
+    cy.wait(2000);
+    cy.frameLoaded('#external-page');
+    cy.wait(1000);
+    cy.iframe().find('.ultima-menu li').contains('Consulta').click();
+    cy.iframe().find('li[role="presentation"]').last().click();
+    cy.iframe().find('#tipo_comunicacion').type("Externa Recibida");
+    cy.iframe().find('.ui-autocomplete-list li').click();
+    cy.then(() => {
+      cy.iframe().find('#nro_radicado').type(`${radicado}`);
+    });
+    cy.iframe().find('button[label="Buscar"]').last().click();
+    cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').first().click();
+    cy.iframe().find('.ui-datatable-scrollable-body').should('have.length', 3);
+    cy.iframe().find('.ui-datatable-scrollable-body').last().find('tr').should('have.length', 3);
+    cy.iframe().find('p-header i').click();
+    cy.iframe().find('.ng-trigger-overlayAnimation li').contains("Trazabilidad").click();
+    cy.iframe().find('.ui-scrollpanel-wrapper .StepProgress').first().should('include.text', 'Preclasificar').click();
     cy.get('a .letrasMinagricultura').click();
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
     

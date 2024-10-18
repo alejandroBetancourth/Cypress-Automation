@@ -47,7 +47,7 @@ describe('Cargue inventarios AC', {
       function selectAndCheck(subnivel) {
         select(subnivel);
         cy.get('@selectedOption').then(optionText => {
-          if (optionText !== 'CARPETA' && optionText !== 'ROLLO') {
+          if (optionText !== 'CARPETA' && optionText !== 'ROLLO' && optionText !== 'ENTREPAÑO') {
             i++;
             selectAndCheck(i);
           }
@@ -104,7 +104,7 @@ describe('Cargue inventarios AC', {
       function selectAndCheck(subnivel) {
         select(subnivel);
         cy.get('@selectedOption').then(optionText => {
-          if (optionText !== 'CARPETA' && optionText !== 'ROLLO') {
+          if (optionText !== 'CARPETA' && optionText !== 'ROLLO' && optionText !== 'ENTREPAÑO') {
             i++;
             selectAndCheck(i);
           }
@@ -161,7 +161,7 @@ describe('Cargue inventarios AC', {
       function selectAndCheck(subnivel) {
         select(subnivel);
         cy.get('@selectedOption').then(optionText => {
-          if (optionText !== 'CARPETA' && optionText !== 'ROLLO') {
+          if (optionText !== 'CARPETA' && optionText !== 'ROLLO' && optionText !== 'ENTREPAÑO') {
             i++;
             selectAndCheck(i);
           }
