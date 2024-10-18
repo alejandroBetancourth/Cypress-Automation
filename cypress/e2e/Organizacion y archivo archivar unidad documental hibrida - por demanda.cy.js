@@ -3,7 +3,7 @@ import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
 
-describe('Organización y archivo crear unidad documental hibrida - por demanda', () => {
+describe('Organización y archivo archivar unidad documental hibrida', () => {
   let radicadoEntrada;
   let uniDocumental;
   before(() => {
@@ -63,40 +63,15 @@ describe('Organización y archivo crear unidad documental hibrida - por demanda'
     cy.iframe().find('.ui-datatable-scrollable-body').last().find('tr').first().find("td").first().click();
     cy.iframe().find('button.buttonMain').contains("Siguiente").click();
     
-    //Consultar creación - Gestión electrónica
-    cy.iframe().find('app-menu ul li').contains('Consulta').click();
-    cy.iframe().find('#depP').type("Subd. Talento");
-    cy.iframe().find('.ui-autocomplete-items li').contains('SUBD. TALENTO').click();
-    cy.iframe().find('#sCode').type("P");
-    cy.iframe().find('.ui-autocomplete-items li').contains('PQRSD').click();
-    cy.iframe().find('#udName').type(`${id}`);
-    cy.iframe().find('button.buttonMain[label="Buscar"]').first().click();
-    cy.iframe().find('.ui-datatable-scrollable-body tr').first().find("td").eq(6).should('include.text', 'Híbrido');
-
-    //Consultar creación - Gestión Física
-    cy.get('ul.ultima-main-menu li').contains('Gestión Física').parent().click();
-    cy.get('a .letrasMinagricultura').should('be.visible');
-    cy.wait(1000);
-    cy.iframe().find('#dependences').select('121');
-    cy.wait(1000);
-    cy.iframe().within(() => {
-      cy.frameLoaded('#main-content');
-      cy.iframe().find('.ui-dialog button').click();
-    });
-    cy.iframe().find('ul li').contains('Inventarios').click();
-    cy.iframe().find('li a').contains('Cargue de inventario AG').click();
-    cy.wait(1000);
-    cy.iframe().within(() => {
-      cy.frameLoaded('#main-content');
-      cy.iframe().find('#tipo_soportedep1').select('TIP_SOP3');
-      cy.iframe().find('#serieSubserieSearch').select('2');
-      cy.then(() => {
-        cy.iframe().find('#descripcionDocumento').type(`${id}`);
-      });
-      cy.iframe().find('button[type="button"]').contains('BUSCAR').click();
-      cy.iframe().find('table#table_unidad tbody tr').should('have.length', 1);
-    });
-
+    //Documentos a archivar
+    cy.iframe().find('input[type="file"]').selectFile(['cypress/docs/prueba.pdf', 'cypress/docs/prueba2.pdf'], { force: true });
+    cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().find('td').first().click();
+    cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().find('td').eq(3).click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Respuesta').click();
+    cy.iframe().find('.ui-dialog-footer button').contains('Si').click();
+    cy.iframe().find('.ui-datatable-thead tr').first().find('th').first().click();
+    cy.iframe().find('.ui-icon-folder').first().click();
+    cy.iframe().find('.ui-dialog-footer button').contains('Si').click();
   });
 });
 
