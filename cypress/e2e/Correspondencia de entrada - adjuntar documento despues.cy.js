@@ -2,18 +2,13 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente')) || Cypress.env('Igualdad');
 
 describe('Correspondencia de entrada - adjuntar documento después', () => {
   let radicadoE;
-  let radicadoS;
-  before(() => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false })
-  })
   beforeEach(() => {
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas05');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
+    cy.inicioSesion('pruebas05', 'puebas.jbpm05', env);
   });
 
   it('Flujo número 30', { defaultCommandTimeout: 40000 }, () => {
@@ -23,17 +18,17 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
+    cy.iframe().find('form li').contains(env.dependencia_radicadora).click();
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Correspondencia de entrada').click();
 
     //Datos generales
     cy.iframe().find('p-checkbox label').contains('Adjuntar documento').click();
     cy.iframe().find('.ui-selectbutton .ui-button').contains('Despues').click();
-    cy.iframe().find('#medioRecepcion').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Ventanilla Sede').click();
+    // cy.iframe().find('#medioRecepcion').click();
+    // cy.iframe().find('.ui-dropdown-items li').contains('Ventanilla Sede').click();
     cy.iframe().find('#tipologiaDocumental').contains('empty').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Circular').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Reclamo').click();
     cy.iframe().find('#numeroFolio input').type(4);
     cy.iframe().find('textarea[formcontrolname="asunto"]').type("Escenario adjuntar documento después");
     cy.iframe().find('#soporteAnexos').click();
@@ -53,8 +48,8 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
     cy.iframe().find('.ui-dropdown-items li').contains('Correo').click();
     cy.iframe().find('#tipoPersona').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Natural').click();
-    cy.iframe().find('#nombreApellidos').type('S');
-    cy.iframe().find('.ui-autocomplete-items li').contains('SEBAS').click();
+    cy.iframe().find('#nombreApellidos').type('Cy');
+    cy.iframe().find('.ui-autocomplete-items li').contains('CYPRESS').click();
     cy.iframe().find('p-dtradiobutton').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
 
@@ -65,7 +60,7 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
     cy.wait(300);
     cy.iframe().find('form.ng-invalid #dependenciaGrupo').click();
     cy.wait(300);
-    cy.iframe().find('.ui-dropdown-items li').contains('Subd. Talento').click();
+    cy.iframe().find('.ui-dropdown-items li').first().click();
     cy.wait(300);
     cy.iframe().find('form.ng-invalid button.buttonMain').contains('Agregar').not('[disabled]').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Radicar').not('[disabled]').click();
@@ -77,16 +72,8 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
     cy.iframe().find('.ticket-radicado [class*="close"]').click();
     cy.iframe().find('.ui-card-content .page-buttons button').last().click(); //Btn Finalizar
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
-    cy.get('a .letrasMinagricultura').click();
-    cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
-    /////Consultar radicado/////
-    cy.get('input[type="text"]').type('pruebas01');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
-    cy.wait(2000);
-    cy.frameLoaded('#external-page');
-    cy.wait(1000);
+    //Consultar radicado//
     cy.iframe().find('.ultima-menu li').contains('Consulta').click();
     cy.iframe().find('li[role="presentation"]').last().click();
     cy.iframe().find('#tipo_comunicacion').type("Externa Recibida");
@@ -104,19 +91,17 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
     /////Adjuntar documento/////
-    cy.get('input[type="text"]').type('pruebas02');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.inicioSesion('pruebas02', 'puebas.jbpm06', env);
     cy.wait(2000);
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
+    cy.iframe().find('form li').contains(env.dependencia_radicadora).click();
     cy.iframe().find('ul li').contains('Mis Asignaciones').click();
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicadoE}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.then(() => {
       cy.iframe().find('h2.page-title-primary').contains(`${radicadoE}`).should('exist');

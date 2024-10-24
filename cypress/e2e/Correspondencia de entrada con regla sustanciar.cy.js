@@ -83,7 +83,7 @@ describe('Correspondencia de entrada con regla sustanciar', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicadoEntrada}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.then(() => {
       cy.iframe().find('h2.page-title-primary').contains(`${radicadoEntrada}`).should('exist');
@@ -136,7 +136,7 @@ describe('Correspondencia de entrada con regla sustanciar', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicadoEntrada}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('textarea[formcontrolname="asunto"]').type(" - Cambio");
     cy.iframe().find('#numeroGuia').clear().type(555);

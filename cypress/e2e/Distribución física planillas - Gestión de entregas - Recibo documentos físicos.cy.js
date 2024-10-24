@@ -220,7 +220,7 @@ describe(
       cy.iframe().find('#numeroRadicado').type(`${radicadoEntrada}`);
     });
     cy.iframe().find('button[label="Buscar"]').click();
-    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Ver detalles"]').click();
     cy.iframe().find('a[role="button"]').click();
     cy.iframe().find('.iconsMenu').click();
@@ -329,7 +329,7 @@ describe(
       cy.iframe().find('#numeroRadicado').type(`${radicadoEntrada2}`);
     });
     cy.iframe().find('button[label="Buscar"]').click();
-    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Ver detalles"]').click();
     cy.iframe().find('a[role="button"]').click();
     cy.iframe().find('.ui-multiselect-label').click();
@@ -354,7 +354,7 @@ describe(
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicadoEntrada2}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('li[role="presentation"]').last().click();
     cy.iframe().find('form[name="formDefault"] p-dropdown').click();
@@ -366,7 +366,7 @@ describe(
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicadoEntrada2}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('#tipoPlantilla').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Oficio').click();

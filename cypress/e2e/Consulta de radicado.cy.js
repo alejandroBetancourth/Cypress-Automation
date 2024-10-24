@@ -12,7 +12,7 @@ describe('Consulta de radicado', () => {
   })
   beforeEach(() => {
     cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas05');
+    cy.get('input[type="text"]').type('pruebas02'); //Estaba con pruebas05
     cy.get('input[type="password"]').type('Soadoc123');
     cy.get('button').click();
   });
@@ -30,7 +30,8 @@ describe('Consulta de radicado', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`S-2024{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').eq(1).find('.table-text-custom-secundary').then(($texto) => {
       const texto = $texto.text().trim().split(' ');
       radicadoS = texto[texto.length - 1];
@@ -81,7 +82,8 @@ describe('Consulta de radicado', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`E-2024{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').eq(1).find('.table-text-custom-secundary').then(($texto) => {
       const texto = $texto.text().trim().split(' ');
       radicadoE = texto[texto.length - 1];
@@ -132,7 +134,8 @@ describe('Consulta de radicado', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`I-2024{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').eq(1).find('.table-text-custom-secundary').then(($texto) => {
       const texto = $texto.text().trim().split(' ');
       radicadoI = texto[texto.length - 1];
