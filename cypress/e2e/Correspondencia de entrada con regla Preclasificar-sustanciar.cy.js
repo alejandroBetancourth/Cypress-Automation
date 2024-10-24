@@ -143,7 +143,7 @@ describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => 
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicado}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('textarea[formcontrolname="asunto"]').clear().type("Escenario preclasificar");
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
@@ -171,7 +171,7 @@ describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => 
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicado}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('textarea[formcontrolname="asunto"]').clear().type("Escenario preclasificar - sustanciar");
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
@@ -208,7 +208,7 @@ describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => 
       cy.iframe().find('#numeroRadicado').type(`${radicado}`);
     });
     cy.iframe().find('button[label="Buscar"]').click();
-    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr').should('exist');
     
   });

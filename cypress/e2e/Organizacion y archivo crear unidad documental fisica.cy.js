@@ -42,11 +42,12 @@ describe('Organización y archivo crear unidad documental fisica', () => {
     cy.iframe().within(() => {
       
       cy.frameLoaded('#main-content');
-      // cy.iframe().find('select#idTipoBodega').select('62');
-      // cy.iframe().find('input#bodega_nombre').type('PRUEBA MC');
-      // cy.iframe().find('input#bodega_descripcion').type('EJEMPLO DE CREACIÓN');
-      // cy.iframe().find('input#bodega_capacidad').type(6);
-      // cy.iframe().find('button[onclick="agregarBodega()"]').click();
+      cy.iframe().find('select#idTipoBodega').select('62');
+      cy.iframe().find('input#bodega_nombre').type(`${Date.now()}`);
+      cy.iframe().find('input#bodega_descripcion').type('EJEMPLO DE CREACIÓN');
+      cy.iframe().find('input#bodega_capacidad').type(5);
+      cy.iframe().find('button[onclick="agregarBodega()"]').click();
+      cy.iframe().find('.last').click();
       cy.iframe().find('input[type="radio"]').last().click();
       cy.iframe().find('button[type="button"]').contains('SIGUIENTE').click();
 
@@ -58,14 +59,6 @@ describe('Organización y archivo crear unidad documental fisica', () => {
         cy.iframe().find('div#dContainer button[type="button"]').contains('ACTUALIZAR').click();
         cy.iframe().find('.ui-dialog .ui-dialog-buttonpane button[type="button"]').click();
       }
-      cy.iframe().find('div#dContainer .td_pager').eq(2).click();
-      cy.iframe().find('div#dContainer input[type="radio"]').eq(5).click();
-      cy.iframe().find('div#dContainer #capacidadSubNivel_1').clear().type(5);
-      cy.iframe().find('div#dContainer #idTipoSubNivel_1').select('3');
-      cy.iframe().find('div#dContainer button[type="button"]').contains('ACTUALIZAR').click();
-      cy.iframe().find('.ui-dialog .ui-dialog-buttonpane button[type="button"]').click();
-      
-      cy.iframe().find('div#dContainer .td_pager').eq(0).click();
       cy.iframe().find('div#dContainer input[type="radio"]').eq(0).click();
       cy.iframe().find('div#dContainer button[type="button"]').contains('SIGUIENTE').click();
 

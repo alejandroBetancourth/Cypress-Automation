@@ -3,9 +3,8 @@ import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(300);
 
-//pruebas03, se le quita rol archivista
-//pruebas05, se le asigna rol archivista 
-//Hacer la prueba cambiando pruebas03 a pruebas05
+//pruebas05, se le quita rol archivista
+//pruebas03, se le asigna rol archivista 
 
 describe('Organización y archivo crear unidad documental electrónica (por demanda)', () => {
   let radicado;
@@ -14,7 +13,7 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
   })
   beforeEach(() => {
     cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas03');
+    cy.get('input[type="text"]').type('pruebas05');
     cy.get('input[type="password"]').type('Soadoc123');
     cy.get('button').click();
   });
@@ -47,7 +46,7 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
     /////No crear/////
-    cy.get('input[type="text"]').type('pruebas05');
+    cy.get('input[type="text"]').type('pruebas03');
     cy.get('input[type="password"]').type('Soadoc123');
     cy.get('button').click();
     cy.wait(2000);
@@ -59,7 +58,8 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.then(() => {
       cy.iframe().find('#filter').type(`Crear Unidad Documental{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
     cy.iframe().find('.ui-datatable-tablewrapper .ui-datatable-data').click();
     cy.iframe().find('table p-dropdown').click();
@@ -75,7 +75,7 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
     /////Verificar observaciones/////
-    cy.get('input[type="text"]').type('pruebas03');
+    cy.get('input[type="text"]').type('pruebas05');
     cy.get('input[type="password"]').type('Soadoc123');
     cy.get('button').click();
     cy.wait(2000);
@@ -87,7 +87,8 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.then(() => {
       cy.iframe().find('#filter').type(`Archivar Documento{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
     cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').first().find("td").eq(7).click();
     cy.iframe().find('div[role="dialog"] tbody tr').should('have.length', 2);
@@ -139,7 +140,8 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.then(() => {
       cy.iframe().find('#filter').type(`Crear Unidad Documental{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
     cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().click();
     cy.iframe().find('table p-dropdown').first().click();
@@ -165,7 +167,7 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
     /////Verificar observaciones/////
-    cy.get('input[type="text"]').type('pruebas03');
+    cy.get('input[type="text"]').type('pruebas05');
     cy.get('input[type="password"]').type('Soadoc123');
     cy.get('button').click();
     cy.wait(2000);
@@ -177,7 +179,8 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.then(() => {
       cy.iframe().find('#filter').type(`Archivar Documento{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
     cy.iframe().find('.ui-datatable-scrollable-body').should('have.length', 2);
     cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').first().find("td").eq(7).click();
@@ -222,7 +225,8 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.then(() => {
       cy.iframe().find('#filter').type(`Crear Unidad Documental{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
     cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().click();
     cy.iframe().find('table p-dropdown').first().click();
@@ -241,7 +245,7 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
     /////Verificar observaciones/////
-    cy.get('input[type="text"]').type('pruebas03');
+    cy.get('input[type="text"]').type('pruebas05');
     cy.get('input[type="password"]').type('Soadoc123');
     cy.get('button').click();
     cy.wait(2000);
@@ -253,7 +257,8 @@ describe('Organización y archivo crear unidad documental electrónica (por dema
     cy.then(() => {
       cy.iframe().find('#filter').type(`Archivar Documento{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
     cy.iframe().find('.ui-datatable-scrollable-body').should('have.length', 1);
     cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').first().find("td").eq(7).click();
