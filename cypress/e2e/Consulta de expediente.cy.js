@@ -2,18 +2,15 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente'));
 
 describe('Consulta de expediente', () => {
   let idUniDocumental;
   let nombreUniDocumental;
-  before(() => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false })
-  })
+
   beforeEach(() => {
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas01');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
+    cy.inicioSesion('pruebas01', 'puebas.jbpm05', env);
   });
 
   it('Subd. Administrativa', { defaultCommandTimeout: 40000 }, () => {
@@ -21,16 +18,14 @@ describe('Consulta de expediente', () => {
 
     cy.frameLoaded('#external-page');
     cy.wait(1000);
-
-    cy.iframe().find('form .dependencia-movil').should('exist').click();
     cy.iframe().find('ul li').contains('Consulta').click();
     
     //Consulta
-    cy.iframe().find('#depP input').type('SUBD. ADMINISTRATIVA');
+    cy.iframe().find('#depP input').type(env.dependencia_radicadora);
     cy.iframe().find('.ui-autocomplete-panel li').first().click();
     cy.iframe().find('.ui-autocomplete-panel li').should('not.exist');
     
-    cy.iframe().find('#sCode input').type('PQRSD');
+    cy.iframe().find('#sCode .ui-autocomplete-dropdown').click();
     cy.iframe().find('.ui-autocomplete-panel li').first().click();
     cy.iframe().find('.ui-autocomplete-panel li').should('not.exist');
 

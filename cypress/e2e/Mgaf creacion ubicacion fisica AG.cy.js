@@ -2,6 +2,7 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente'));
 
 describe('Mgaf creación ubicación física AG', {
   retries: {
@@ -9,25 +10,21 @@ describe('Mgaf creación ubicación física AG', {
     openMode: 2
   }
 }, () => {
-  before(() => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
-  })
   beforeEach(() => {
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas01');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
+    cy.inicioSesion('pruebas01', 'puebas.jbpm05', env);
   });
 
   it('Despacho Ministra', { defaultCommandTimeout: 40000 }, () => {
     cy.url().should('include', '/pages/application/1');
     cy.frameLoaded('#external-page');    
-    cy.get('ul.ultima-main-menu li').contains('Gestión Física').parent().should('be.visible').click();
     cy.get('ul.ultima-main-menu li').contains('Gestión Física').parent().click();
-    cy.wait(1000);
 
-    cy.iframe().find('#dependences').select('100');
+    cy.get('.ui-blockui').should('have.css', 'display', 'block');
+    cy.get('.ui-blockui').should('have.css', 'display', 'none');
     cy.wait(1000);
+    seleccionarDependencia();
+
     cy.iframe().find('ul li').contains('Almacenamiento').click();
     cy.iframe().find('li a').contains('Niveles almacenamiento AG').click();
 
@@ -37,7 +34,7 @@ describe('Mgaf creación ubicación física AG', {
       cy.iframe().find('#idTipoBodega').select('62');
       const id = Date.now();
       cy.iframe().find('#bodega_nombre').type(`${id}`);
-      cy.iframe().find('#bodega_descripcion').type("Test de creación");
+      cy.iframe().find('#bodega_descripcion').type("Escenario creación AG");
       cy.iframe().find('#bodega_capacidad').type(5);
       cy.iframe().find('button[type="button"]').contains("ADICIONAR").click();
       cy.iframe().find('input[data-column="3"]').type(`${id}`);
@@ -291,4 +288,16 @@ function niveles(nivel, subnivel, i, ubicacion) {
   }
   cy.iframe().find(`div#dContainer${nivel} button[type="button"]`).contains('ACTUALIZAR').click();
   cy.iframe().find('.ui-dialog .ui-dialog-buttonpane button[type="button"]').click();
+}
+
+function seleccionarDependencia() {
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('#dependences').select('100');
+      break;
+    case 'UNP':
+      cy.iframe().find('#dependences').select('1000');
+      break;
+  }
+  cy.wait(500);
 }

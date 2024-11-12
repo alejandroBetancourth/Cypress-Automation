@@ -56,3 +56,43 @@ Cypress.Commands.add("inicioSesion", (Igualdad, UNP, env) => {
   });
   cy.get("button").click();
 });
+
+Cypress.Commands.add('consulta', (radicado, numDocs, traza) => {
+  cy.iframe().find('.ultima-menu li').contains('Consulta').click();
+  cy.iframe().find('li[role="presentation"]').last().click();
+  cy.iframe().find('#tipo_comunicacion').type("Externa Recibida");
+  cy.iframe().find('.ui-autocomplete-list li').click();
+  cy.then(() => {
+    cy.iframe().find('#nro_radicado').type(`${radicado}`);
+  });
+  cy.iframe().find('button[label="Buscar"]').last().click();
+  cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').first().click();
+  if (numDocs) {
+    cy.iframe().find('.ui-datatable-scrollable-body').should('have.length', 3);
+    switch (Cypress.env("ambiente")) {
+      case 'Igualdad':
+        cy.iframe().find('.ui-datatable-scrollable-body').eq(1).find('tr').should('have.length', 1); //Historial de versiones
+        cy.iframe().find('.ui-datatable-scrollable-body').last().find('tr').should('have.length', numDocs); //Anexos
+        break;
+      case 'UNP':
+        cy.iframe().find('.ui-datatable-scrollable-body').eq(1).find('tr').should('have.length', 1); //Historial de versiones
+        cy.iframe().find('.ui-datatable-scrollable-body').last().find('tr').should('have.length', numDocs - 1); //Anexos
+        break;
+    }
+  }
+  cy.iframe().find('p-header i').click();
+  cy.iframe().find('.ng-trigger-overlayAnimation li').contains("Trazabilidad").click();
+  cy.iframe().find('.ui-scrollpanel-wrapper .StepProgress').first().should('include.text', traza).click();
+});
+
+Cypress.Commands.add('seleccionarDependencia', (Igualdad, UNP) => {
+  cy.iframe().find('form .dependencia-movil').should('exist').click();
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('form li').contains(Igualdad).click();
+      break;
+    case 'UNP':
+      cy.iframe().find('form li').contains(UNP).click();
+      break;
+  }
+})

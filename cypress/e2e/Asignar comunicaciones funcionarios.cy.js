@@ -114,20 +114,9 @@ describe('Asignar comunicaciones funcionarios', () => {
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
 
     //Consultar radicado//
-    cy.iframe().find('.ultima-menu li').contains('Consulta').click();
-    cy.iframe().find('li[role="presentation"]').last().click();
-    cy.iframe().find('#tipo_comunicacion').type("Externa Recibida");
-    cy.iframe().find('.ui-autocomplete-list li').click();
     cy.then(() => {
-      cy.iframe().find('#nro_radicado').type(`${radicado}`);
-    });
-    cy.iframe().find('button[label="Buscar"]').last().click();
-    cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').first().click();
-    cy.iframe().find('.ui-datatable-scrollable-body').should('have.length', 3);
-    cy.iframe().find('.ui-datatable-scrollable-body').last().find('tr').should('have.length', 2);
-    cy.iframe().find('p-header i').click();
-    cy.iframe().find('.ng-trigger-overlayAnimation li').contains("Trazabilidad").click();
-    cy.iframe().find('.ui-scrollpanel-wrapper .StepProgress').first().should('include.text', 'Recibir y Gestionar Documentos').click();
+      cy.consulta(radicado, 2, 'Recibir y Gestionar Documentos');
+    })
 
   });
 });
@@ -137,7 +126,7 @@ function asignar(Igualdad, UNP) {
     case 'Igualdad':
       cy.iframe().find('.ui-multiselect-items li').contains(Igualdad).click();
       break;
-      case 'UNP':
+    case 'UNP':
       cy.iframe().find('.ui-multiselect-items li').contains(UNP).click();
       break;
   }
