@@ -25,7 +25,7 @@ describe('Organización y archivo crear unidad documental electrónica (por fluj
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
+    cy.iframe().find('form li').contains('Subd Administrativa').click();
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Correspondencia de entrada').click();
 

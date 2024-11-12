@@ -2,6 +2,7 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente'));
 
 describe('Organización y archivo consultar unidad documental', () => {
   let idUniDocumental;
@@ -9,10 +10,7 @@ describe('Organización y archivo consultar unidad documental', () => {
 
   beforeEach(() => {
     cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas02');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.inicioSesion('pruebas02', 'puebas.jbpm06', env);
   });
 
   it('Oficina Juridica', { defaultCommandTimeout: 40000 }, () => {
@@ -20,15 +18,12 @@ describe('Organización y archivo consultar unidad documental', () => {
 
     cy.frameLoaded('#external-page');
     cy.wait(1000);
-
-    cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Oficina Juridica').click();
+    seleccionarDependencia('Oficina Juridica', 'Oficina Asesora Juridica');
     cy.iframe().find('ul li').contains('Gestión de Expedientes').click();
     cy.iframe().find('li a').contains('Organización y Archivo').click();
     
     //Organización y archivo
-    cy.iframe().find('#serie').click();
-    cy.iframe().find('.ng-trigger-overlayAnimation li').contains('PQRSD').click();
+    selUnidadDocumental();
     cy.iframe().find('button[label="Buscar"]').click();
     cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
     cy.iframe().find('.ui-datatable-hoverable-rows').first().find('tr').first().find('td').eq(3).find('span').last().then(($uniDocumental) => {
@@ -111,3 +106,30 @@ describe('Organización y archivo consultar unidad documental', () => {
     
   // });
 });
+
+function seleccionarDependencia(Igualdad, UNP) {
+  cy.iframe().find('form .dependencia-movil').should('exist').click();
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('form li').contains(Igualdad).click();
+      break;
+    case 'UNP':
+      cy.iframe().find('form li').contains(UNP).click();
+      break;
+  }
+}
+
+function selUnidadDocumental() {
+  cy.iframe().find('#serie').click();
+  
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('.ng-trigger-overlayAnimation li').contains('PQRSD').click();
+      break;
+      case 'UNP':
+        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('INFORMES').click();
+        cy.iframe().find('#tipoId').click();
+        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Informes de Gestión').click();
+      break;
+  }
+}

@@ -2,15 +2,13 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente'));
 
 describe('Produccion Documental normal externa - con archivo.cy', () => {
   let radicadoS;
   beforeEach(() => {
     cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas01');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.inicioSesion('pruebas01', 'puebas.jbpm05', env);
   });
 
 
@@ -21,7 +19,7 @@ describe('Produccion Documental normal externa - con archivo.cy', () => {
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Talento').click();
+    cy.iframe().find('form li').contains(env.dependencias[0]).click();
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Producción multiples documentos').click();
 
@@ -34,14 +32,14 @@ describe('Produccion Documental normal externa - con archivo.cy', () => {
     cy.iframe().find('button.buttonMain').contains('Siguiente').click();
 
     //Datos destinatario
-    cy.iframe().find('p-checkbox').contains('Electrónica').click();
+    cy.iframe().find('p-checkbox').contains('Electrónica Certificada').click();
     cy.iframe().find('.buttonHeaderTable').contains('Agregar').click();
     cy.iframe().find('#tipoDestinatario').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Principal').click();
     cy.iframe().find('#tipoPersona').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Natural').click();
-    cy.iframe().find('#nombre').type('S');
-    cy.iframe().find('.ui-autocomplete-panel').contains('SEBAS').click();
+    cy.iframe().find('#nombre').type('Cy');
+    cy.iframe().find('.ui-autocomplete-panel').contains('CYPRESS').click();
     cy.iframe().find('p-dtradiobutton').click();
     cy.iframe().find('button.buttonMain').contains('Aceptar').click();
     cy.iframe().find('button.buttonMain').contains('Siguiente').click();
@@ -68,7 +66,7 @@ describe('Produccion Documental normal externa - con archivo.cy', () => {
     // cy.iframe().find('#filter').type(`Firmar`);
     // //Firmar documento//
     // cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
-    cy.wait(5000);
+    // cy.wait(5000);
     cy.iframe().find('app-root').then($body => {
       if ($body.find('a.ui-dialog-titlebar-icon').length) {
         cy.iframe().find('.ticket-radicado').should('exist');
@@ -92,17 +90,25 @@ describe('Produccion Documental normal externa - con archivo.cy', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicadoS}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('#serie').click();
-    cy.iframe().find('.ng-trigger-overlayAnimation li').contains('PQRSD').click();
-    cy.iframe().find('button[label="Buscar"]').click();
+    cy.iframe().find('.ng-trigger-overlayAnimation li').last().click();
+    cy.iframe().find('button[label="Buscar"]').then(($button) => {
+      if ($button.is(':disabled')) {
+        cy.iframe().find('#tipoId').click();
+        cy.iframe().find('.ng-trigger-overlayAnimation li').first().click();
+        cy.wrap($button).click();
+      } else {
+        cy.wrap($button).click();
+      }
+    });
     cy.iframe().find('.ui-datatable-scrollable-body').eq(1).find('tr').first().click();
     cy.iframe().find('button.buttonMain').contains('Siguiente').click();
     cy.iframe().find('.text-left.page-subtitle').should('exist');
     cy.iframe().find('.ui-datatable-tablewrapper tbody tr').eq(1).find('td').first().click();
     cy.iframe().find('.ui-datatable-tablewrapper tbody tr').eq(1).find('td').eq(4).click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Respuesta').click();
+    cy.iframe().find('.ui-dropdown-items li').first().click();
     cy.iframe().find('.ui-dialog-footer button').contains('Si').click();
     cy.iframe().find('.ui-datatable-thead tr').first().find('th').first().click();
     cy.iframe().find('.ui-icon-folder').first().click();

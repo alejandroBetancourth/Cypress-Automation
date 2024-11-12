@@ -2,18 +2,12 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente'));
 
 describe('Organización y archivo crear unidad documental fisica', () => {
-  let radicadoEntrada;
-  let uniDocumental;
-  before(() => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false })
-  })
   beforeEach(() => {
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas01');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
+    cy.inicioSesion('pruebas01', 'puebas.jbpm05', env);
   });
 
   it('Flujo número 21', { defaultCommandTimeout: 40000 }, () => {
@@ -23,17 +17,13 @@ describe('Organización y archivo crear unidad documental fisica', () => {
     cy.frameLoaded('#external-page');
     // cy.wait(1000);
     
-    
-    cy.get('ul.ultima-main-menu li').contains('Gestión Física').parent().should('be.visible').click();
     cy.get('ul.ultima-main-menu li').contains('Gestión Física').parent().click();
     
+  
+    cy.get('.ui-blockui').should('have.css', 'display', 'block');
+    cy.get('.ui-blockui').should('have.css', 'display', 'none');
     cy.wait(1000);
-    cy.iframe().find('#dependences').select('121');
-    cy.wait(1000);
-    cy.iframe().within(() => {
-      cy.frameLoaded('#main-content');
-      cy.iframe().find('.ui-dialog button').click();
-    });
+    seleccionarDependencia();
 
     cy.iframe().find('ul li').contains('Almacenamiento').click();
     cy.iframe().find('li a').contains('Niveles almacenamiento AG').click();
@@ -44,7 +34,7 @@ describe('Organización y archivo crear unidad documental fisica', () => {
       cy.frameLoaded('#main-content');
       cy.iframe().find('select#idTipoBodega').select('62');
       cy.iframe().find('input#bodega_nombre').type(`${Date.now()}`);
-      cy.iframe().find('input#bodega_descripcion').type('EJEMPLO DE CREACIÓN');
+      cy.iframe().find('input#bodega_descripcion').type('Escenario creación');
       cy.iframe().find('input#bodega_capacidad').type(5);
       cy.iframe().find('button[onclick="agregarBodega()"]').click();
       cy.iframe().find('.last').click();
@@ -132,3 +122,14 @@ describe('Organización y archivo crear unidad documental fisica', () => {
   });
 });
 
+function seleccionarDependencia() {
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('#dependences').select('121');
+      break;
+    case 'UNP':
+      cy.iframe().find('#dependences').select('2000');
+      break;
+  }
+  cy.wait(500)
+}

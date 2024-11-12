@@ -2,6 +2,7 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente'));
 
 describe('Cargue inventarios AC', {
   retries: {
@@ -11,21 +12,19 @@ describe('Cargue inventarios AC', {
 }, () => {
   beforeEach(() => {
     cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas01');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.inicioSesion('pruebas01', 'puebas.jbpm05', env);
   });
 
   it('Secretaria General', { defaultCommandTimeout: 40000 }, () => {
     cy.url().should('include', '/pages/application/1');
     cy.frameLoaded('#external-page');
-    cy.get('ul.ultima-main-menu li').contains('Gestión Física').parent().should('be.visible').click();
     cy.get('ul.ultima-main-menu li').contains('Gestión Física').parent().click();
-    cy.wait(1000);
 
-    cy.iframe().find('#dependences').select('120');
+    cy.get('.ui-blockui').should('have.css', 'display', 'block');
+    cy.get('.ui-blockui').should('have.css', 'display', 'none');
     cy.wait(1000);
+    seleccionarDependencia();
+
     cy.iframe().find('ul li').contains('Inventarios').click();
     cy.iframe().find('li a').contains('Cargue de inventario AC').click();
 
@@ -46,8 +45,8 @@ describe('Cargue inventarios AC', {
 
       function selectAndCheck(subnivel) {
         select(subnivel);
-        cy.get('@selectedOption').then(optionText => {
-          if (optionText !== 'CARPETA' && optionText !== 'ROLLO' && optionText !== 'ENTREPAÑO') {
+        cy.iframe().find('#div_ultimo_nivel').then(($select) => {
+          if($select.css('display') === 'none') {
             i++;
             selectAndCheck(i);
           }
@@ -55,8 +54,14 @@ describe('Cargue inventarios AC', {
       }
       
       selectAndCheck(i);
-  
-      cy.iframe().find('#txtCodigoSerieSubserie').select('20');
+      switch (Cypress.env('ambiente')) {
+        case 'Igualdad':
+          cy.iframe().find('#txtCodigoSerieSubserie').select('20');
+          break;
+        case 'UNP':
+          cy.iframe().find('#txtCodigoSerieSubserie').select('63-21');
+          break;
+      }
       const id = Date.now();
       cy.iframe().find('#txtIdDocumental').type(`${id}`);
       cy.iframe().find('#txtNomUnidad').type(`${id}`);
@@ -210,3 +215,14 @@ function alert() {
   cy.iframe().find('.ui-dialog').should('not.be.visible');
 }
 
+function seleccionarDependencia() {
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('#dependences').select('120');
+      break;
+    case 'UNP':
+      cy.iframe().find('#dependences').select('1200');
+      break;
+  }
+  cy.wait(500);
+}

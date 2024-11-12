@@ -2,19 +2,16 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env('ambiente'));
 
 describe('Consulta de radicado', () => {
-  let radicadoS;
-  let radicadoE;
-  let radicadoI;
-  before(() => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false })
-  })
+  let radicadoExtEnv;
+  let radicadoExtRec;
+  let radicadoIntEnv;
+
   beforeEach(() => {
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas02'); //Estaba con pruebas05
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
+    cy.inicioSesion('pruebas02', 'puebas.jbpm05', env); //pruebas05
   });
 
   it('Flujo número 27', { defaultCommandTimeout: 40000 }, () => {
@@ -22,29 +19,28 @@ describe('Consulta de radicado', () => {
 
     cy.frameLoaded('#external-page');
     cy.wait(1000);
-    cy.iframe().find('form .dependencia-movil').should('exist').click();
     cy.iframe().find('.ultima-menu li').contains('Mis Asignaciones').click();
 
     ///Comunicación Externa Enviada///
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
     cy.then(() => {
-      cy.iframe().find('#filter').type(`S-2024{enter}`);
+      busquedaRadicadoExtEnv();
     });
     cy.iframe().find('p-progressspinner').should('exist');
     cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').eq(1).find('.table-text-custom-secundary').then(($texto) => {
       const texto = $texto.text().trim().split(' ');
-      radicadoS = texto[texto.length - 1];
+      radicadoExtEnv = texto[texto.length - 1];
     });
     cy.then(() => {
-      cy.log(`${radicadoS}`);
+      cy.log(`${radicadoExtEnv}`);
     })
     cy.iframe().find('ul li').contains('Consulta').click();
     cy.iframe().find('li[role="presentation"]').last().click();
     cy.iframe().find('#tipo_comunicacion').type("Externa Enviada");
     cy.iframe().find('.ui-autocomplete-panel li').contains('Externa Enviada').click();
     cy.then(() => {
-      cy.iframe().find('#nro_radicado').type(`${radicadoS}`);
+      cy.iframe().find('#nro_radicado').type(`${radicadoExtEnv}`);
     })
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
     cy.wait(500);
@@ -59,7 +55,7 @@ describe('Consulta de radicado', () => {
     
     //Busqueda con los dos últimos digitos
     cy.then(() => {
-      const radModificado = radicadoS.split('-');
+      const radModificado = radicadoExtEnv.split('-');
       cy.iframe().find('#nro_radicado').clear().type(`${radModificado[radModificado.length - 1]}`);
     })
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
@@ -67,9 +63,17 @@ describe('Consulta de radicado', () => {
     cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
     
     
-    //Busqueda sin la letra
+    //Busqueda sin prefijo
     cy.then(() => {
-      const radModificado = radicadoS.split('S-');
+      let radModificado;
+      switch (Cypress.env("ambiente")) {
+        case "Igualdad":
+          radModificado = radicadoExtEnv.split('S-');
+          break;
+          case "UNP":
+          radModificado = radicadoExtEnv.split('OFI-');
+          break;
+      }
       cy.iframe().find('#nro_radicado').clear().type(`${radModificado[radModificado.length - 1]}`);
     });
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
@@ -80,23 +84,23 @@ describe('Consulta de radicado', () => {
     cy.iframe().find('.ultima-menu li').contains('Mis Asignaciones').click();
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
     cy.then(() => {
-      cy.iframe().find('#filter').type(`E-2024{enter}`);
+      busquedaRadicadoExtRe();
     });
     cy.iframe().find('p-progressspinner').should('exist');
     cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').eq(1).find('.table-text-custom-secundary').then(($texto) => {
       const texto = $texto.text().trim().split(' ');
-      radicadoE = texto[texto.length - 1];
+      radicadoExtRec = texto[texto.length - 1];
     });
     cy.then(() => {
-      cy.log(`${radicadoE}`);
+      cy.log(`${radicadoExtRec}`);
     })
     cy.iframe().find('ul li').contains('Consulta').click();
     cy.iframe().find('li[role="presentation"]').last().click();
     cy.iframe().find('#tipo_comunicacion').type("Externa Recibida");
     cy.iframe().find('.ui-autocomplete-panel li').contains('Externa Recibida').click();
     cy.then(() => {
-      cy.iframe().find('#nro_radicado').type(`${radicadoE}`);
+      cy.iframe().find('#nro_radicado').type(`${radicadoExtRec}`);
     })
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
     cy.wait(500);
@@ -111,7 +115,7 @@ describe('Consulta de radicado', () => {
     
     //Busqueda con los dos últimos digitos
     cy.then(() => {
-      const radModificado = radicadoE.split('-');
+      const radModificado = radicadoExtRec.split('-');
       cy.iframe().find('#nro_radicado').clear().type(`${radModificado[radModificado.length - 1]}`);
     })
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
@@ -119,9 +123,17 @@ describe('Consulta de radicado', () => {
     cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
     
     
-    //Busqueda sin la letra
+    //Busqueda sin prefijo
     cy.then(() => {
-      const radModificado = radicadoE.split('E-');
+      let radModificado;
+      switch (Cypress.env("ambiente")) {
+        case "Igualdad":
+          radModificado = radicadoExtRec.split('E-');
+          break;
+          case "UNP":
+          radModificado = radicadoExtRec.split('EXT-');
+          break;
+      }
       cy.iframe().find('#nro_radicado').clear().type(`${radModificado[radModificado.length - 1]}`);
     });
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
@@ -132,23 +144,23 @@ describe('Consulta de radicado', () => {
     cy.iframe().find('.ultima-menu li').contains('Mis Asignaciones').click();
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
     cy.then(() => {
-      cy.iframe().find('#filter').type(`I-2024{enter}`);
+      busquedaRadicadoIntEnv();
     });
     cy.iframe().find('p-progressspinner').should('exist');
     cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').eq(1).find('.table-text-custom-secundary').then(($texto) => {
       const texto = $texto.text().trim().split(' ');
-      radicadoI = texto[texto.length - 1];
+      radicadoIntEnv = texto[texto.length - 1];
     });
     cy.then(() => {
-      cy.log(`${radicadoI}`);
+      cy.log(`${radicadoIntEnv}`);
     })
     cy.iframe().find('ul li').contains('Consulta').click();
     cy.iframe().find('li[role="presentation"]').last().click();
     cy.iframe().find('#tipo_comunicacion').type("Interna Enviada");
     cy.iframe().find('.ui-autocomplete-panel li').contains('Interna Enviada').click();
     cy.then(() => {
-      cy.iframe().find('#nro_radicado').type(`${radicadoI}`);
+      cy.iframe().find('#nro_radicado').type(`${radicadoIntEnv}`);
     })
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
     cy.wait(500);
@@ -163,7 +175,7 @@ describe('Consulta de radicado', () => {
     
     //Busqueda con los dos últimos digitos
     cy.then(() => {
-      const radModificado = radicadoI.split('-');
+      const radModificado = radicadoIntEnv.split('-');
       cy.iframe().find('#nro_radicado').clear().type(`${radModificado[radModificado.length - 1]}`);
     })
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
@@ -171,9 +183,17 @@ describe('Consulta de radicado', () => {
     cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
     
     
-    //Busqueda sin la letra
+    //Busqueda sin prefijo
     cy.then(() => {
-      const radModificado = radicadoI.split('I-');
+      let radModificado;
+      switch (Cypress.env("ambiente")) {
+        case "Igualdad":
+          radModificado = radicadoIntEnv.split('E-');
+          break;
+          case "UNP":
+          radModificado = radicadoIntEnv.split('MEM-');
+          break;
+      }
       cy.iframe().find('#nro_radicado').clear().type(`${radModificado[radModificado.length - 1]}`);
     });
     cy.iframe().find('button.buttonMain[label="Buscar"]').last().click();
@@ -182,3 +202,42 @@ describe('Consulta de radicado', () => {
     
   });
 });
+
+function busquedaRadicadoExtEnv() {
+  cy.then(() => {
+    switch (Cypress.env("ambiente")) {
+      case "Igualdad":
+        cy.iframe().find('#filter').type(`S-{enter}`);
+        break;
+        case "UNP":
+        cy.iframe().find('#filter').type(`OFI-{enter}`);
+        break;
+    }
+  })
+}
+
+function busquedaRadicadoExtRe() {
+  cy.then(() => {
+    switch (Cypress.env("ambiente")) {
+      case "Igualdad":
+        cy.iframe().find('#filter').type(`E-{enter}`);
+        break;
+        case "UNP":
+        cy.iframe().find('#filter').type(`EXT-{enter}`);
+        break;
+    }
+  })
+}
+
+function busquedaRadicadoIntEnv() {
+  cy.then(() => {
+    switch (Cypress.env("ambiente")) {
+      case "Igualdad":
+        cy.iframe().find('#filter').type(`I-{enter}`);
+        break;
+        case "UNP":
+        cy.iframe().find('#filter').type(`MEM-{enter}`);
+        break;
+    }
+  })
+}

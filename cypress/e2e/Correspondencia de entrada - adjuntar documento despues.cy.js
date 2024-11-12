@@ -8,7 +8,7 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
   let radicadoE;
   beforeEach(() => {
     cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
-    cy.inicioSesion('pruebas05', 'puebas.jbpm05', env);
+    cy.inicioSesion('pruebas05', 'puebas.jbpm07', env);
   });
 
   it('Flujo número 30', { defaultCommandTimeout: 40000 }, () => {
@@ -74,19 +74,9 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
 
     //Consultar radicado//
-    cy.iframe().find('.ultima-menu li').contains('Consulta').click();
-    cy.iframe().find('li[role="presentation"]').last().click();
-    cy.iframe().find('#tipo_comunicacion').type("Externa Recibida");
-    cy.iframe().find('.ui-autocomplete-list li').click();
     cy.then(() => {
-      cy.iframe().find('#nro_radicado').type(`${radicadoE}`);
+      cy.consulta(radicadoE, null, 'Adjuntar documento');
     });
-    cy.iframe().find('button[label="Buscar"]').last().click();
-    cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').first().click();
-    cy.iframe().find('p-header i').click();
-    cy.iframe().find('.ng-trigger-overlayAnimation li').contains("Trazabilidad").click();
-    cy.iframe().find('.StepProgress-item').first().should('include.text', '(Digitalizador)');
-    cy.iframe().find('.ui-scrollpanel-wrapper .StepProgress').first().should('include.text', 'Adjuntar documento');
     cy.get('a .letrasMinagricultura').click();
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
@@ -114,6 +104,11 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
     cy.iframe().find('button.buttonMain').contains('Finalizar').click();
     cy.iframe().find('.ui-dialog-footer').contains('Aceptar').click();
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
+
+    //Consultar radicado//
+    cy.then(() => {
+      cy.consulta(radicadoE, 3, 'Asignar Comunicaciones');
+    });
     
   });
 });
