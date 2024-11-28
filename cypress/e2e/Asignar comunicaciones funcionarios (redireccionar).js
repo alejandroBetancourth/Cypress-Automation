@@ -27,8 +27,8 @@ function radicarPrincipal(jerarquica, productora, copJerarquica, copProductora) 
   cy.iframe().find('.ui-dropdown-items li').contains('Correo').click();
   cy.iframe().find('#tipoPersona').click();
   cy.iframe().find('.ui-dropdown-items li').contains('Natural').click();
-  cy.iframe().find('#nombreApellidos').type('S');
-  cy.iframe().find('.ui-autocomplete-items li').contains('SEBAS').click();
+  cy.iframe().find('#nombreApellidos').type('Cy');
+  cy.iframe().find('.ui-autocomplete-items li').contains('CYPRESS').click();
   cy.iframe().find('p-dtradiobutton').click();
   cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
 
@@ -109,7 +109,7 @@ describe('Asignar comunicaciones funcionarios (Redireccionar)', () => {
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
+    cy.iframe().find('form li').contains('Subd Administrativa').click();
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Correspondencia de entrada').click();
 

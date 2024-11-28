@@ -2,17 +2,14 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(300);
+const env = Cypress.env(Cypress.env('ambiente')) || Cypress.env('Igualdad');
 
 describe('Recibir y gestionar archivar', () => {
   let radicado;
-  before(() => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false })
-  })
+
   beforeEach(() => {
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas05');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
+    cy.inicioSesion('pruebas05', 'puebas.jbpm07', env);
   });
 
   it('Flujo número 12', { defaultCommandTimeout: 40000 }, () => {
@@ -22,52 +19,30 @@ describe('Recibir y gestionar archivar', () => {
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
+    cy.iframe().find('form li').contains(env.dependencia_radicadora).click();
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Correspondencia de entrada').click();
 
     //Datos generales
     cy.iframe().find('p-checkbox label').contains('Adjuntar documento').click();
     cy.iframe().find('#tipologiaDocumental').contains('empty').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Oficio').click();
-    cy.iframe().find('#numeroFolio input').type(9);
-    cy.iframe().find('textarea[formcontrolname="asunto"]').type("Recibir y gestionar archivar");
+    cy.iframe().find('.ui-dropdown-items li').contains('Denuncia').click();
+    cy.iframe().find('#numeroFolio input').type(4);
+    cy.iframe().find('textarea[formcontrolname="asunto"]').type("Escenario Recibir y gestionar - Archivar");
     cy.iframe().find('#soporteAnexos').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Electrónico').click();
     cy.iframe().find('#tipoAnexos').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Cd').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Agregar').not('[disabled]').click();
     cy.iframe().find('#soporteAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Electrónico').click();
-    cy.iframe().find('#tipoAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Poder').click();
-    cy.iframe().find('button.buttonMain .ui-clickable').contains('Agregar').not('[disabled]').click();
-    cy.iframe().find('#soporteAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Electrónico').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Físico').click();
     cy.iframe().find('#tipoAnexos').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Expediente').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Agregar').not('[disabled]').click();
     cy.iframe().find('#soporteAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Electrónico').click();
-    cy.iframe().find('#tipoAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Libro').click();
-    cy.iframe().find('#descripcionAnexos').type("Anexo 4");
-    cy.iframe().find('button.buttonMain .ui-clickable').contains('Agregar').not('[disabled]').click();
-    cy.iframe().find('#soporteAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Electrónico').click();
-    cy.iframe().find('#tipoAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Sobre Sellado').click();
-    cy.iframe().find('#descripcionAnexos').type("Documentación");
-    cy.iframe().find('button.buttonMain .ui-clickable').contains('Agregar').not('[disabled]').click();
-    cy.iframe().find('#soporteAnexos').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Físico').click();
     cy.iframe().find('#tipoAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Solicitud De Conciliación').click();
-    cy.iframe().find('button.buttonMain .ui-clickable').contains('Agregar').not('[disabled]').click();
-    cy.iframe().find('#soporteAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Electrónico').click();
-    cy.iframe().find('#tipoAnexos').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Usb').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Caja').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Agregar').not('[disabled]').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
 
@@ -76,15 +51,15 @@ describe('Recibir y gestionar archivar', () => {
     cy.iframe().find('.ui-dropdown-items li').contains('Correo').click();
     cy.iframe().find('#tipoPersona').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Jurídica').click();
-    cy.iframe().find('#razonSocial').type('B');
-    cy.iframe().find('.ui-autocomplete-items li').contains('BANCO SOAINT').click();
+    cy.iframe().find('#razonSocial').type('Banco');
+    cy.iframe().find('.ui-autocomplete-items li').first().click();
     cy.iframe().find('p-dtradiobutton').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
 
     //Dependencia destino
     cy.iframe().find('form.ng-invalid #sedeAdministrativa').click();
     cy.wait(300);
-    cy.iframe().find('.ui-dropdown-items li').contains('Despacho Ministra').click();
+    selecLi('Despacho Ministra', 'Direccion General');
     cy.wait(300);
     cy.iframe().find('form.ng-invalid #dependenciaGrupo').click();
     cy.wait(300);
@@ -114,9 +89,7 @@ describe('Recibir y gestionar archivar', () => {
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
     
     /////Asignar comunicaciones/////
-    cy.get('input[type="text"]').type('pruebas03');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.inicioSesion('pruebas03', 'puebas.jbpm08', env);
     cy.wait(2000);
     cy.frameLoaded('#external-page');
     cy.wait(1000);
@@ -128,11 +101,12 @@ describe('Recibir y gestionar archivar', () => {
       cy.iframe().find('#numeroRadicado').type(`${radicado}`);
     });
     cy.iframe().find('button[label="Buscar"]').click();
-    cy.wait(1000);
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Ver detalles"]').click();
     cy.iframe().find('a[role="button"]').click();
     cy.iframe().find('.ui-multiselect-label').click();
-    cy.iframe().find('.ui-multiselect-items li').contains('pruebas04').click();
+    asignar('pruebas04', 'puebas.jbpm06');
     cy.iframe().find('.iconsMenu').click();
     cy.iframe().find('.ng-trigger.ui-menu li').contains('Asignar').click();
     cy.iframe().find('.ui-card-content button.buttonMain').click(); //Finalizar
@@ -141,9 +115,7 @@ describe('Recibir y gestionar archivar', () => {
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
     /////Recibir y Gestionar documentos/////
-    cy.get('input[type="text"]').type('pruebas04');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.inicioSesion('pruebas04', 'puebas.jbpm06', env);
     cy.wait(2000);
     cy.frameLoaded('#external-page');
     cy.wait(1000);
@@ -153,7 +125,7 @@ describe('Recibir y gestionar archivar', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicado}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('li[role="presentation"]').eq(3).click();
     cy.iframe().find('#observacion').type("Se envía a archivar");
@@ -168,11 +140,10 @@ describe('Recibir y gestionar archivar', () => {
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicado}{enter}`);
     });
-    cy.wait(1000);
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('p-radiobutton[value="solicitarUnidadDocumental"]').click();
-    cy.iframe().find('#serie').click();
-    cy.iframe().find('.ng-trigger-overlayAnimation li').contains('PQRSD').click();
+    selUnidadDocumental();
     cy.iframe().find('#generacionId').click();
     cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Manual').click();
     const id = Date.now();
@@ -188,7 +159,7 @@ describe('Recibir y gestionar archivar', () => {
     cy.iframe().find('button.buttonMain').contains("Siguiente").click();
     cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().find('td').first().click();
     cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().find('td').eq(4).click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Solicitud').click();
+    cy.iframe().find('.ui-dropdown-items li').first().click();
     cy.iframe().find('.ui-dialog-footer button').contains('Si').click();
     cy.iframe().find('.ui-datatable-thead tr').first().find('th').first().click();
     cy.iframe().find('.ui-icon-folder').first().click();
@@ -196,3 +167,41 @@ describe('Recibir y gestionar archivar', () => {
     
   });
 });
+
+function selecLi(Igualdad, UNP) {
+  switch (Cypress.env("ambiente")) {
+    case 'Igualdad':
+      cy.iframe().find('.ui-dropdown-items li').contains(Igualdad).click();
+      break;
+      case 'UNP':
+      cy.iframe().find('.ui-dropdown-items li').contains(UNP).click();      
+      break;
+  
+  }
+}
+
+function asignar(Igualdad, UNP) {
+  switch (Cypress.env("ambiente")) {
+    case 'Igualdad':
+      cy.iframe().find('.ui-multiselect-items li').contains(Igualdad).click();
+      break;
+    case 'UNP':
+      cy.iframe().find('.ui-multiselect-items li').contains(UNP).click();
+      break;
+  }
+}
+
+function selUnidadDocumental() {
+  cy.iframe().find('#serie').click();
+  
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('.ng-trigger-overlayAnimation li').contains('PQRSD').click();
+      break;
+      case 'UNP':
+        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('INFORMES').click();
+        cy.iframe().find('#tipoId').click();
+        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Informes de Gestión').click();
+      break;
+  }
+}

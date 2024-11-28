@@ -1,37 +1,40 @@
 /// <reference types="Cypress" />
 import { slowCypressDown } from "cypress-slow-down";
 
-// slowCypressDown(100);
-const env = Cypress.env(Cypress.env('ambiente')) || Cypress.env('Igualdad');
+// slowCypressDown(300);
+const env = Cypress.env(Cypress.env("ambiente"));
 
-describe('Recibir y gestionar documento externo', () => {
-  let radicado;
-  let radicadoInterno;
-  let radicadoExterno;
+//pruebas03 sin rol digitalizador
+describe(
+  'Gestión de entregas', 
+ () => {
+  let radicadoEntrada; //Con distribución física y se archiva
+  let radicadoSalida;
+  let planilla;
+
   beforeEach(() => {
     cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
-    cy.inicioSesion('pruebas02', 'puebas.jbpm06', env);
+    cy.inicioSesion("pruebas04", "puebas.jbpm06", env);
   });
-
-  it('Flujo número 9', { defaultCommandTimeout: 40000 }, () => {
+  
+  it('Parte 3 - con distribución física', { defaultCommandTimeout: 40000 }, () => {
     cy.url().should('include', '/pages/application/1');
 
-    cy.wait(500)
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
     cy.iframe().find('form li').contains(env.dependencia_radicadora).click();
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Correspondencia de entrada').click();
-
+    
     //Datos generales
     cy.iframe().find('p-checkbox label').contains('Adjuntar documento').click();
-    cy.iframe().find('#tipologiaDocumental').contains('empty').click();
+    cy.iframe().find('#tipologiaDocumental').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Denuncia').click();
     cy.iframe().find('#numeroFolio input').type(4);
-    cy.iframe().find('textarea[formcontrolname="asunto"]').type("Escenario respuesta documento externo (oficio)");
+    cy.iframe().find('textarea[formcontrolname="asunto"]').type("Escenario gestión de entregas");
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
-
+    
     //Datos solicitante
     cy.iframe().find('#tipoNotificacion').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Correo').click();
@@ -41,7 +44,7 @@ describe('Recibir y gestionar documento externo', () => {
     cy.iframe().find('.ui-autocomplete-items li').contains('CYPRESS').click();
     cy.iframe().find('p-dtradiobutton').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
-
+    
     //Dependencia destino
     cy.iframe().find('form.ng-invalid #sedeAdministrativa').click();
     cy.wait(300);
@@ -56,15 +59,15 @@ describe('Recibir y gestionar documento externo', () => {
     cy.iframe().find('.ticket-radicado').should('exist');
     cy.iframe().find('div').contains('N°. Radicado:').parent().then(($radicado) => {
       const uniDocumental = $radicado.text();
-      radicado = uniDocumental.split(':')[1]?.trim() || '';
+      radicadoEntrada = uniDocumental.split(':')[1]?.trim() || '';
     });
     cy.iframe().find('.ticket-radicado [class*="close"]').click();
-    cy.iframe().find('.ui-card-content .page-buttons button').last().click(); //Btn Finalizar
+    cy.iframe().find('.ui-card-content .page-buttons button').last().click(); //Btn Continuar
     cy.then(() => {
-      cy.iframe().find('h2.page-title-primary').contains(`${radicado}`).should('exist');
+      cy.iframe().find('h2.page-title-primary').contains(`${radicadoEntrada}`).should('exist');
     });
     cy.wait(1000);
-    cy.iframe().find('.ui-fileupload input[type="file"]').selectFile('cypress/docs/prueba.pdf', { force: true });
+    cy.iframe().find('.ui-fileupload input[type="file"]').selectFile(['cypress/docs/prueba.pdf'], { force: true });
     cy.iframe().find('p-radiobutton').first().click();
     cy.iframe().find('.ui-dialog-footer').contains('Aceptar').click();
     cy.iframe().find('button').contains('Guardar').click();
@@ -83,15 +86,21 @@ describe('Recibir y gestionar documento externo', () => {
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Asignar comunicaciones').click();
     cy.then(() => {
-      cy.iframe().find('#numeroRadicado').type(`${radicado}`);
+      cy.iframe().find('#numeroRadicado').type(`${radicadoEntrada}`);
     });
     cy.iframe().find('button[label="Buscar"]').click();
-    cy.iframe().find('p-progressspinner').should('exist');
-    cy.iframe().find('p-progressspinner').should('not.exist');
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Ver detalles"]').click();
     cy.iframe().find('a[role="button"]').click();
     cy.iframe().find('.ui-multiselect-label').click();
-    asignar('pruebas05', 'puebas.jbpm07');
+    switch (Cypress.env('ambiente')) {
+      case 'Igualdad':
+        cy.iframe().find('.ui-multiselect-items li').contains('pruebas05').click();
+        break;
+      case 'UNP':
+        cy.iframe().find('.ui-multiselect-items li').contains('puebas.jbpm07').click();
+        break;
+    }
     cy.iframe().find('.iconsMenu').click();
     cy.iframe().find('.ng-trigger.ui-menu li').contains('Asignar').click();
     cy.iframe().find('.ui-card-content button.buttonMain').click(); //Finalizar
@@ -107,19 +116,19 @@ describe('Recibir y gestionar documento externo', () => {
     cy.seleccionarDependencia('Despacho Ministra', 'Direccion General');
     cy.iframe().find('ul li').contains('Mis Asignaciones').click();
     cy.then(() => {
-      cy.iframe().find('#filter').type(`${radicado}{enter}`);
+      cy.iframe().find('#filter').type(`${radicadoEntrada}{enter}`);
     });
     cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     cy.iframe().find('li[role="presentation"]').last().click();
     cy.iframe().find('form[name="formDefault"] p-dropdown').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Producir Documento Respuesta').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Producir Documento').click();
     cy.iframe().find('button.buttonMain').contains('Gestionar').parent().click();
     cy.iframe().find('.ui-card-content button.buttonMain').click(); //Finalizar
-
+    
     //Gestión producción múltiples documentos
     cy.then(() => {
-      cy.iframe().find('#filter').type(`${radicado}{enter}`);
+      cy.iframe().find('#filter').type(`${radicadoEntrada}{enter}`);
     });
     cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
@@ -127,83 +136,60 @@ describe('Recibir y gestionar documento externo', () => {
     cy.iframe().find('.ui-dropdown-items li').contains('Oficio').click();
     cy.iframe().find('button.buttonMain').contains('Agregar').click();
     cy.iframe().find('button.buttonMainNext').click();
-    cy.iframe().find('#subject').type("Escenario respuesta documento externo (oficio)");
+    
+    //Producir documento
+    cy.iframe().find('#subject').type("Prueba sin distribución respuesta");
     cy.iframe().find('button.buttonMain').contains('Siguiente').click();
     cy.iframe().find('p-checkbox').contains('Electrónica Certificada').click();
     cy.iframe().find('.buttonHeaderTable').contains('Agregar').click();
     cy.iframe().find('#tipoDestinatario').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Principal').click();
     cy.iframe().find('#tipoPersona').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Natural').click();
-    cy.iframe().find('#nombre').type('Cy');
-    cy.iframe().find('.ui-autocomplete-panel').contains('CYPRESS').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Anónimo').click();
+    cy.iframe().find('div[role="dialog"] .buttonHeaderTable').click();
+    cy.iframe().find('i[ptooltip="Editar"]').click();
+    cy.iframe().find('p-accordiontab').first().click();
+    cy.iframe().find('#correoEle').type("correo@prueba.com");
+    cy.iframe().find('p-accordion button.buttonMain').click();
     cy.iframe().find('p-dtradiobutton').click();
     cy.iframe().find('button.buttonMain').contains('Aceptar').click();
+    
+    //Gestionar producción
     cy.iframe().find('button.buttonMain').contains('Siguiente').click();
     cy.iframe().find('#sede').click();
     selecLi('Despacho Ministra', 'Direccion General');
     cy.wait(300);
     cy.iframe().find('#dependencia').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Secretaria').click();
-    cy.wait(300);
-    cy.iframe().find('#rol').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Revisor').click();
-    cy.wait(300);
-    cy.iframe().find('#funcionario').click();
-    selecLi('Pruebas03', 'Puebas.jbpm08');
-    cy.iframe().find('button.buttonMain').eq(2).contains('Agregar').click();
-    cy.iframe().find('#sede').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Nivel').click();
-    cy.wait(300);
-    cy.iframe().find('#dependencia').click();
-    selecLi('Despacho Ministra', 'Direccion General');
+    cy.iframe().find('.ui-dropdown-items li').contains('Secretaria General').click();
     cy.wait(300);
     cy.iframe().find('#rol').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Aprobador').click();
     cy.wait(300);
     cy.iframe().find('#funcionario').click();
-    selecLi('Pruebas01', 'Jbpm 05');
-    cy.iframe().find('button.buttonMain').eq(2).contains('Agregar').click();
+    selecLi("Pruebas01", "Jbpm 05");
+    cy.iframe().find('.ui-panel-content-wrapper button.buttonMain').last().contains('Agregar').click();
     cy.iframe().find('button.buttonMain').contains('Siguiente').click();
+    
+    //Edición documento principal
     cy.iframe().find('.fa-plus').click();
     cy.iframe().find('.iconSave').click();
     cy.iframe().find('p-confirmdialog button').contains('Aceptar').click();
-    cy.iframe().find('input[name="soporte"]').eq(1).click();
-    cy.iframe().find('#tipoAnexo').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Expediente').click();
-    cy.iframe().find('.buttonMain input[type="file"]').selectFile('cypress/docs/prueba.pdf', { force: true });
-    cy.iframe().find('button.buttonMainNext').contains('Continuar').click();
+    cy.wait(1000);
+    cy.iframe().find('.buttonMainNext').contains('Continuar').click();
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
     cy.get('a .letrasMinagricultura').click();
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
-
-    /////Revisar documento/////
-    cy.inicioSesion('pruebas03', 'puebas.jbpm08', env);
+    
+    /////Aprobar documento/////
+    cy.inicioSesion("pruebas01", "puebas.jbpm05", env);
     cy.wait(2000);
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
     cy.iframe().find('form li').contains('Secretaria General').click();
-    cy.iframe().find('.ultima-menu li').contains('Mis Asignaciones').click();
-    cy.then(() => {
-      cy.iframe().find('#filter').type(`${radicado}{enter}`);
-    });
-    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
-    cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
-    cy.iframe().find('.buttonMainNext').click();
-    cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
-    cy.get('a .letrasMinagricultura').click();
-    cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
-
-    /////Aprobar/////    
-    cy.inicioSesion('pruebas01', 'puebas.jbpm05', env);
-    cy.wait(2000);
-    cy.frameLoaded('#external-page');
-    cy.wait(1000);
-    cy.seleccionarDependencia('Despacho Ministra', 'Direccion General');
     cy.iframe().find('ul li').contains('Mis Asignaciones').click();
     cy.then(() => {
-      cy.iframe().find('#filter').type(`${radicado}{enter}`);
+      cy.iframe().find('#filter').type(`${radicadoEntrada}{enter}`);
     });
     cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
@@ -212,10 +198,10 @@ describe('Recibir y gestionar documento externo', () => {
     cy.iframe().find('.ui-dialog-footer button').contains('Aceptar').click();
     cy.iframe().find('div').contains('N°. Radicado :').parent().then(($radicado) => {
       const uniDocumental = $radicado.text();
-      radicadoInterno = uniDocumental.split(':')[1]?.trim() || '';
+      radicadoSalida = uniDocumental.split(':')[1]?.trim() || '';
     });
     // cy.then(() => {
-    //   cy.iframe().find('#filter').type(`${radicadoInterno}{enter}`);
+    //   cy.iframe().find('#filter').type(`${radicadoSalida}{enter}`);
     // });
     // cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
     // cy.wait(5000);
@@ -224,7 +210,7 @@ describe('Recibir y gestionar documento externo', () => {
         cy.iframe().find('.ticket-radicado').should('exist');
         cy.iframe().find('div').contains('N°. Radicado:').parent().then(($radicado) => {
           const uniDocumental = $radicado.text();
-          radicadoInterno = uniDocumental.split(':')[1]?.trim() || '';
+          radicadoSalida = uniDocumental.split(':')[1]?.trim() || '';
         });
         cy.iframe().find('a.ui-dialog-titlebar-icon').click();
       } else {
@@ -239,18 +225,19 @@ describe('Recibir y gestionar documento externo', () => {
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
     cy.get('a .letrasMinagricultura').click();
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
-
+    
     /////Archivar documento/////
-    cy.inicioSesion('pruebas05', 'puebas.jbpm07', env);
+    cy.inicioSesion("pruebas05", "puebas.jbpm07", env);
     cy.wait(2000);
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.seleccionarDependencia('Despacho Ministra', 'Direccion General');
-    cy.iframe().find('.ultima-menu li').contains('Mis Asignaciones').click();
+    cy.iframe().find('ul li').contains('Mis Asignaciones').click();
     cy.then(() => {
-      cy.iframe().find('#filter').type(`${radicadoInterno}{enter}`);
+      cy.iframe().find('#filter').type(`${radicadoSalida}{enter}`);
     });
-    cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').first().click();
+    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
+    cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
     selUnidadDocumental();
     cy.iframe().find('button[label="Buscar"]').click();
     cy.iframe().find('.ui-datatable-scrollable-body').eq(1).find('tr').first().click();
@@ -260,15 +247,125 @@ describe('Recibir y gestionar documento externo', () => {
     cy.iframe().find('.ui-datatable-tablewrapper tbody tr').eq(1).find('td').eq(4).click();
     cy.iframe().find('.ui-dropdown-items li').first().click();
     cy.iframe().find('.ui-dialog-footer button').contains('Si').click();
-    cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().find('td').eq(4).click();
-    cy.iframe().find('.ui-datatable-tablewrapper tbody tr').first().find('td').eq(4).click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Solicitud').click();
-    cy.iframe().find('.ui-dialog-footer button').contains('No').click();
     cy.iframe().find('.ui-datatable-thead tr').first().find('th').first().click();
     cy.iframe().find('.ui-icon-folder').first().click();
     cy.iframe().find('.ui-dialog-footer button').contains('Si').click();
+    cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
+
+    //Verificar radicados//
+    cy.iframe().find('li a').contains('Vista Corporativa').click();
+    cy.iframe().find('form .dependencia-movil').should('exist').click();
+    cy.iframe().find('form li').contains(env.dependencia_radicadora).click();
+    cy.iframe().find('p-progressspinner').should('exist');
+    cy.iframe().find('p-progressspinner').should('not.exist');
+    cy.iframe().find('ul li').contains('Planillas').click();
+
+    //Planilla entrada//
+    //Búsqueda de tareas - Radicado de entrada
+    cy.iframe().find('li a').contains('Gestión de Entregas').click();
+    cy.iframe().find('li a').contains('Distribución Física').click();
+    cy.then(() => {
+      cy.iframe().find('#numeroRadicado').type(`${radicadoEntrada}`);
+    });
+    cy.iframe().find('#float-input').click();
+    selecLi2();
+    cy.iframe().find('button[label="Buscar"]').first().click();
+    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').first().click();
+    cy.iframe().find('button[label="Generar"]').click();
+    cy.iframe().find('div[role="dialog"] .ui-datatable-scrollable-body').find('tr').find('td').eq(1).find('span').last().then(($planilla) => {
+      planilla = $planilla.text();
+    });
+    cy.then(() => {
+      cy.log(`${planilla}`);
+    });
+    cy.iframe().find('.ui-dialog-footer button').contains('Cerrar').click();
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('have.class', 'ui-datatable-emptymessage-row');
+    
+    //Consultar
+    cy.iframe().find('li[role="presentation"]').last().click();
+    cy.iframe().find('p-multiselect[formcontrolname="dependencia"]').last().click();
+    selecLi2();
+    cy.iframe().find('.ui-multiselect-header .ui-multiselect-close').click();
+    cy.then(() => {
+      cy.iframe().find('input[formcontrolname="nroPlanilla"]').type(`${planilla}`);
+    });
+    cy.iframe().find('button[label="Buscar"]').last().click();
+    
+    //Gestión de entregas - entregar//
+    cy.iframe().find('li a').contains('Gestión de Entregas').click();
+    cy.iframe().find('p-multiselect[formcontrolname="estado"]').click();
+    cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Planillado').click();
+    cy.then(() => {
+      cy.iframe().find('#nroPlanilla').type(`${planilla}`);
+    })
+    cy.iframe().find('button[label="Buscar"]').click();
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').first().find('td').eq(14).click();
+    cy.iframe().find('div[role="dialog"] #estadoEntrega').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Entregado').click();
+    cy.iframe().find('div[role="dialog"] button').contains('Guardar').click();
+    cy.iframe().find('.ui-dialog-footer button').contains('Aceptar').click();
+    cy.wait(500);
+    cy.iframe().find('button[label="Guardar"]').click();
+    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('have.class', 'ui-datatable-emptymessage-row');
   
+    //Verificar por entregado
+    cy.iframe().find('li a').contains('Distribución Física').click();
+    cy.iframe().find('li a').contains('Gestión de Entregas').click();
+    cy.iframe().find('p-multiselect[formcontrolname="estado"]').click();
+    cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Entregado').click();
+    cy.then(() => {
+      cy.iframe().find('#nroPlanilla').type(`${planilla}`);
+    })
+    cy.iframe().find('button[label="Buscar"]').click();
+    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').first().find('td').eq(14).click();
+    cy.iframe().find('div[role="dialog"] #estadoEntrega').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Devuelto').click();
+    cy.iframe().find('div[role="dialog"] button').contains('Guardar').click();
+    cy.iframe().find('.ui-dialog-footer button').contains('Aceptar').click();
+    cy.wait(500);
+    cy.iframe().find('button[label="Guardar"]').click();
+    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('have.class', 'ui-datatable-emptymessage-row');
+  
+    //Verificar por devuelto
+    cy.iframe().find('li a').contains('Distribución Física').click();
+    cy.iframe().find('li a').contains('Gestión de Entregas').click();
+    cy.iframe().find('p-multiselect[formcontrolname="estado"]').click();
+    cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Devuelto').click();
+    cy.then(() => {
+      cy.iframe().find('#nroPlanilla').type(`${planilla}`);
+    })
+    cy.iframe().find('button[label="Buscar"]').click();
+    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').first().find('td').eq(14).click();
+    cy.iframe().find('div[role="dialog"] #estadoEntrega').click();
+    cy.iframe().find('.ui-dropdown-items li').contains('Entregado').click();
+    cy.iframe().find('div[role="dialog"] button').contains('Guardar').click();
+    cy.iframe().find('.ui-dialog-footer button').contains('Aceptar').click();
+    cy.wait(500);
+    cy.iframe().find('button[label="Guardar"]').click();
+    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('have.class', 'ui-datatable-emptymessage-row');
+    
+    //Verificar por entregado
+    cy.iframe().find('li a').contains('Distribución Física').click();
+    cy.iframe().find('li a').contains('Gestión de Entregas').click();
+    cy.iframe().find('p-multiselect[formcontrolname="estado"]').click();
+    cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Entregado').click();
+    cy.then(() => {
+      cy.iframe().find('#nroPlanilla').type(`${planilla}`);
+    })
+    cy.iframe().find('button[label="Buscar"]').click();
+    cy.wait(500);
+    cy.iframe().find('.ui-datatable-scrollable-body').first().find('tr').should('not.have.class', 'ui-datatable-emptymessage-row');
   });
+  
 });
 
 function selecLi(Igualdad, UNP) {
@@ -279,17 +376,16 @@ function selecLi(Igualdad, UNP) {
       case 'UNP':
       cy.iframe().find('.ui-dropdown-items li').contains(UNP).click();      
       break;
-  
   }
 }
 
-function asignar(Igualdad, UNP) {
+function selecLi2() {
   switch (Cypress.env("ambiente")) {
     case 'Igualdad':
-      cy.iframe().find('.ui-multiselect-items li').contains(Igualdad).click();
+      cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Despacho Ministra').click();
       break;
     case 'UNP':
-      cy.iframe().find('.ui-multiselect-items li').contains(UNP).click();
+      cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Direccion General').click();
       break;
   }
 }
@@ -301,10 +397,10 @@ function selUnidadDocumental() {
     case 'Igualdad':
       cy.iframe().find('.ng-trigger-overlayAnimation li').contains('PQRSD').click();
       break;
-      case 'UNP':
-        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('INFORMES').click();
-        cy.iframe().find('#tipoId').click();
-        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Informes').click();
+    case 'UNP':
+      cy.iframe().find('.ng-trigger-overlayAnimation li').contains('INFORMES').click();
+      cy.iframe().find('#tipoId').click();
+      cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Informes a Otras Entidades').click();
       break;
   }
 }

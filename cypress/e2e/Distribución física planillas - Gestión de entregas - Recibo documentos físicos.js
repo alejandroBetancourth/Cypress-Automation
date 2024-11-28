@@ -2,6 +2,7 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(300);
+const env = Cypress.env(Cypress.env("ambiente"));
 
 //pruebas03 sin rol digitalizador
 describe(

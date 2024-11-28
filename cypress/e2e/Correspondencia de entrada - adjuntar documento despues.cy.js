@@ -70,7 +70,7 @@ describe('Correspondencia de entrada - adjuntar documento después', () => {
       radicadoE = uniDocumental.split(':')[1]?.trim() || '';
     });
     cy.iframe().find('.ticket-radicado [class*="close"]').click();
-    cy.iframe().find('.ui-card-content .page-buttons button').last().click(); //Btn Finalizar
+    cy.iframe().find('.ui-card-content .page-buttons button').last().click(); // Btn Finalizar
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
 
     //Consultar radicado//

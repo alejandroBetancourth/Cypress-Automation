@@ -22,7 +22,7 @@ describe('Correspondencia de entrada - sin regla', () => {
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Correspondencia de entrada').click();
 
-    //Datos generales
+    // Datos generales
     cy.iframe().find('p-checkbox label').contains('Adjuntar documento').click();
     cy.iframe().find('#tipologiaDocumental').contains('empty').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Consulta').click();

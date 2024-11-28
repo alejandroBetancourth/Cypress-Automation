@@ -24,7 +24,6 @@ describe('Cargue inventarios AG', {
     cy.get('.ui-blockui').should('have.css', 'display', 'none');
     cy.wait(1000);
     seleccionarDependencia();
-
     cy.iframe().find('ul li').contains('Inventarios').click();
     cy.iframe().find('li a').contains('Cargue de inventario AG').click();
 
