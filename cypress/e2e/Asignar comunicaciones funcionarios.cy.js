@@ -10,7 +10,7 @@ describe('Asignar comunicaciones funcionarios', () => {
 
   beforeEach(() => {
     cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
-    cy.inicioSesion('pruebas02', 'puebas.jbpm05', env)
+    cy.inicioSesion('pruebas02', 'puebas.jbpm06', env)
   });
 
   it('Flujo número 3', { defaultCommandTimeout: 40000 }, () => {
@@ -90,13 +90,13 @@ describe('Asignar comunicaciones funcionarios', () => {
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
     /////Asignar comunicaciones/////
-    cy.inicioSesion('pruebas01', 'puebas.jbpm06', env)
+    cy.inicioSesion('pruebas01', 'puebas.jbpm05', env);
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
     cy.then(() => {
       cy.iframe().find('form li').contains(dependenciaProductora).click();
-    })
+    });
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Asignar comunicaciones').click();
     cy.then(() => {
@@ -107,7 +107,7 @@ describe('Asignar comunicaciones funcionarios', () => {
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Ver detalles"]').click();
     cy.iframe().find('a[role="button"]').click();
     cy.iframe().find('.ui-multiselect-label').click();
-    asignar('pruebas03', 'puebas.jbpm06')
+    asignar('pruebas03', 'puebas.jbpm08');
     cy.iframe().find('.iconsMenu').click();
     cy.iframe().find('.ng-trigger.ui-menu li').contains('Asignar').click();
     cy.iframe().find('.ui-card-content button.buttonMain').click(); //Finalizar
@@ -116,7 +116,7 @@ describe('Asignar comunicaciones funcionarios', () => {
     //Consultar radicado//
     cy.then(() => {
       cy.consulta(radicado, 2, 'Recibir y Gestionar Documentos');
-    })
+    });
 
   });
 });

@@ -18,8 +18,7 @@ describe('Produccion Documental normal externa - con archivo.cy', () => {
     cy.wait(500)
     cy.frameLoaded('#external-page');
     cy.wait(1000);
-    cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains(env.dependencias[0]).click();
+    cy.seleccionarDependencia('Subd. Talento Humano', 'Subdireccion De Talento Humano');
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Producción multiples documentos').click();
 
@@ -92,17 +91,8 @@ describe('Produccion Documental normal externa - con archivo.cy', () => {
     });
     cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
     cy.iframe().find('.ui-datatable-data tr i[ptooltip="Iniciar"]').click();
-    cy.iframe().find('#serie').click();
-    cy.iframe().find('.ng-trigger-overlayAnimation li').last().click();
-    cy.iframe().find('button[label="Buscar"]').then(($button) => {
-      if ($button.is(':disabled')) {
-        cy.iframe().find('#tipoId').click();
-        cy.iframe().find('.ng-trigger-overlayAnimation li').first().click();
-        cy.wrap($button).click();
-      } else {
-        cy.wrap($button).click();
-      }
-    });
+    selUnidadDocumental();
+    cy.iframe().find('button[label="Buscar"]').click();
     cy.iframe().find('.ui-datatable-scrollable-body').eq(1).find('tr').first().click();
     cy.iframe().find('button.buttonMain').contains('Siguiente').click();
     cy.iframe().find('.text-left.page-subtitle').should('exist');
@@ -117,3 +107,18 @@ describe('Produccion Documental normal externa - con archivo.cy', () => {
   });
 
 });
+
+function selUnidadDocumental() {
+  cy.iframe().find('#serie').click();
+  
+  switch (Cypress.env('ambiente')) {
+    case 'Igualdad':
+      cy.iframe().find('.ng-trigger-overlayAnimation li').contains('PQRSD').click();
+      break;
+      case 'UNP':
+        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('INFORMES').click();
+        cy.iframe().find('#tipoId').click();
+        cy.iframe().find('.ng-trigger-overlayAnimation li').contains('Informes').click();
+      break;
+  }
+}

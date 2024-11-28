@@ -2,20 +2,16 @@
 import { slowCypressDown } from "cypress-slow-down";
 
 // slowCypressDown(100);
+const env = Cypress.env(Cypress.env("ambiente"));
 
-//Agradecimiento
-//ventanilla sede principal
+//Agradecimiento - Petición general y particular
+//ventanilla sede principal - Correo electrónico
 
 describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => {
   let radicado;
-  before(() => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false })
-  })
   beforeEach(() => {
-    cy.visit('https://40.70.40.215/soaint-toolbox-front/#/login');
-    cy.get('input[type="text"]').type('pruebas04');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
+    cy.inicioSesion("pruebas04", "puebas.jbpm05", env);
   });
 
   it('Flujo número 11', { defaultCommandTimeout: 40000 }, () => {
@@ -58,14 +54,16 @@ describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => 
     // cy.iframe().find('button[label="Agregar"]').click();
 
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
+    cy.iframe().find('form li').contains(env.dependencia_radicadora).click();
     cy.iframe().find('ul li').contains('Gestión de Documentos').click();
     cy.iframe().find('li a').contains('Correspondencia de entrada').click();
 
     //Datos generales
     cy.iframe().find('p-checkbox label').contains('Adjuntar documento').click();
+    cy.iframe().find('#medioRecepcion').click();
+    selecLi('Ventanilla Sede Principal', 'Correo Electrónico');
     cy.iframe().find('#tipologiaDocumental').contains('empty').click();
-    cy.iframe().find('.ui-dropdown-items li').contains('Agradecimiento').click();
+    selecLi('Agradecimiento', 'Petición general y particular');
     cy.iframe().find('#numeroFolio input').type(4);
     cy.iframe().find('textarea[formcontrolname="asunto"]').type("Escenario Correspondencia de entrada con regla pre-clasificar-sustanciar");
     cy.iframe().find('#soporteAnexos').click();
@@ -103,42 +101,22 @@ describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => 
     cy.iframe().find('button').contains('Guardar').click();
     cy.iframe().find('button.buttonMain').contains('Finalizar').click();
     cy.iframe().find('.ui-dialog-footer').contains('Aceptar').click();
-    cy.get('a .letrasMinagricultura').click();
-    cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
+    cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
 
-    /////Consultar radicado/////
-    cy.get('input[type="text"]').type('pruebas01');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
-    cy.wait(2000);
-    cy.frameLoaded('#external-page');
-    cy.wait(1000);
-    cy.iframe().find('.ultima-menu li').contains('Consulta').click();
-    cy.iframe().find('li[role="presentation"]').last().click();
-    cy.iframe().find('#tipo_comunicacion').type("Externa Recibida");
-    cy.iframe().find('.ui-autocomplete-list li').click();
+    //Consultar radicado//
     cy.then(() => {
-      cy.iframe().find('#nro_radicado').type(`${radicado}`);
+      cy.consulta(radicado, 3, 'Preclasificar');
     });
-    cy.iframe().find('button[label="Buscar"]').last().click();
-    cy.iframe().find('.ui-datatable-scrollable-body').find('tr').first().find('td').first().click();
-    cy.iframe().find('.ui-datatable-scrollable-body').should('have.length', 3);
-    cy.iframe().find('.ui-datatable-scrollable-body').last().find('tr').should('have.length', 3);
-    cy.iframe().find('p-header i').click();
-    cy.iframe().find('.ng-trigger-overlayAnimation li').contains("Trazabilidad").click();
-    cy.iframe().find('.ui-scrollpanel-wrapper .StepProgress').first().should('include.text', 'Preclasificar').click();
     cy.get('a .letrasMinagricultura').click();
     cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
     
     /////Preclasificar/////
-    cy.get('input[type="text"]').type('pruebas05');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
+    cy.inicioSesion('pruebas03', 'puebas.jbpm05', env);
     cy.wait(2000);
     cy.frameLoaded('#external-page');
     cy.wait(1000);
     cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
+    cy.iframe().find('form li').contains(env.dependencia_radicadora).click();
     cy.iframe().find('ul li').contains('Mis Asignaciones').click();
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicado}{enter}`);
@@ -149,25 +127,12 @@ describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => 
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
     cy.iframe().find('#tipoPersona').click();
     cy.iframe().find('.ui-dropdown-items li').contains('Natural').click();
-    cy.iframe().find('#nombreApellidos').type('S');
-    cy.iframe().find('.ui-autocomplete-items li').contains('SEBAS').click();
+    cy.iframe().find('#nombreApellidos').type('Cy');
+    cy.iframe().find('.ui-autocomplete-items li').contains('CYPRESS').click();
     cy.iframe().find('p-dtradiobutton').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
     cy.iframe().find('.ui-card-content .page-buttons button').contains('Finalizar').click();
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
-    cy.get('a .letrasMinagricultura').click();
-    cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
-    
-    /////Sustanciar y asignar competencia/////
-    cy.get('input[type="text"]').type('pruebas03');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
-    cy.wait(2000);
-    cy.frameLoaded('#external-page');
-    cy.wait(1000);
-    cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Subd. Administrativa').click();
-    cy.iframe().find('ul li').contains('Mis Asignaciones').click();
     cy.then(() => {
       cy.iframe().find('#filter').type(`${radicado}{enter}`);
     });
@@ -181,35 +146,31 @@ describe('Correspondencia de entrada con regla Preclasificar-sustanciar', () => 
     //Datos destinatario
     cy.iframe().find('app-datos-destinatario-sustanciacion #sedeAdministrativa').click();
     cy.wait(300);
-    cy.iframe().find('.ui-dropdown-items li').contains('Despacho Ministra').click();
+    selecLi('Despacho Ministra', 'Direccion General');
     cy.wait(300);
     cy.iframe().find('app-datos-destinatario-sustanciacion #dependenciaGrupo').click();
     cy.wait(300);
-    cy.iframe().find('.ui-dropdown-items li').contains('Oficina Juridica').click();
+    selecLi('Oficina Juridica', 'Oficina Asesora Juridica');
     cy.iframe().find('form.ng-invalid button.buttonMain').contains('Agregar').not('[disabled]').click();
     cy.iframe().find('button.buttonMain .ui-clickable').contains('Siguiente').not('[disabled]').click();
     cy.iframe().find('.ui-card-content .page-buttons button').contains('Finalizar').click();
     cy.iframe().find('h2.page-title-primary').contains('Mis asignaciones').should('exist');
-    cy.get('a .letrasMinagricultura').click();
-    cy.get('.ultima-menu li[role="menuitem"]').contains('Cerrar').click();
 
-    /////Asignar comunicaciones/////
-    cy.get('input[type="text"]').type('pruebas02');
-    cy.get('input[type="password"]').type('Soadoc123');
-    cy.get('button').click();
-    cy.wait(2000);
-    cy.frameLoaded('#external-page');
-    cy.wait(1000);
-    cy.iframe().find('form .dependencia-movil').should('exist').click();
-    cy.iframe().find('form li').contains('Oficina Juridica').click();
-    cy.iframe().find('ul li').contains('Gestión de Documentos').click();
-    cy.iframe().find('li a').contains('Asignar comunicaciones').click();
+    //Consultar radicado//
     cy.then(() => {
-      cy.iframe().find('#numeroRadicado').type(`${radicado}`);
-    });
-    cy.iframe().find('button[label="Buscar"]').click();
-    cy.iframe().find('.ui-datatable-scrollable-body tr').should('have.length', 1);
-    cy.iframe().find('.ui-datatable-data tr').should('exist');
+      cy.consulta(radicado, 3, 'Asignar Comunicaciones');
+    })
     
   });
 });
+
+function selecLi(Igualdad, UNP) {
+  switch (Cypress.env("ambiente")) {
+    case 'Igualdad':
+      cy.iframe().find('.ui-dropdown-items li').contains(Igualdad).click();
+      break;
+      case 'UNP':
+      cy.iframe().find('.ui-dropdown-items li').contains(UNP).click();      
+      break;
+  }
+}
